@@ -11,7 +11,7 @@ public class Player_Movement : MonoBehaviour
 
     [SerializeField] private bool canDash = true;
     [SerializeField] private bool isDashing = false; // Por alguna razón, Unity me advierte que nunca se usa esta variable.
-    [SerializeField] private float dashingSpeed = 10f;
+    [SerializeField] private float dashingSpeed;
     private float dashingTime = 0.2f;
     private float dashingCooldown = 1f;
 
@@ -20,6 +20,7 @@ public class Player_Movement : MonoBehaviour
     void Start()
     {
        playerRb = GetComponent<Rigidbody>();
+        dashingSpeed = movementSpeed * 2;
     }
 
     // Update is called once per frame

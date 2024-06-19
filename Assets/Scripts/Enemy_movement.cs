@@ -6,34 +6,69 @@ public class Enemy_movement : MonoBehaviour
 {
     private Rigidbody enemyRb;
     [SerializeField] Transform playerPosition;
-    private float targetX;
-    private float targetZ;
     private Vector3 direction;
-    [SerializeField] float enemySpeed = 3f;
+    
+    [SerializeField] float enemySpeed;
+    [SerializeField] float chargeCooldown = 3f;
+    private float maxChargeDistance = 2f;
+    
+
+    private bool isCharging = false;
 
     // Start is called before the first frame update
     void Start()
     {
         enemyRb = GetComponent<Rigidbody>();
-        targetX = playerPosition.position.x;
-        targetZ = playerPosition.position.z;
-        direction = new Vector3 (targetX, 0f, targetZ);
-        Debug.Log(playerPosition.position - this.transform.position);
+
+        StartCoroutine(ChargeTowardsPlayer());
     }
     
     // Update is called once per frame
     void Update()
     {
-        targetX = playerPosition.position.x;
-        targetZ = playerPosition.position.z;
-        direction = new Vector3(targetX, 0f, targetZ) - transform.position.normalized;
+        
 
-        if (Vector3.Distance(transform.position, playerPosition.position) > 2f)
-        enemyRb.velocity = direction * enemySpeed * Time.deltaTime;
     }
 
     private void FixedUpdate()
     {
-        
+        if (!isCharging && enemyRb.velocity.magnitude > 0)
+        {
+            enemyRb.velocity = Vector3.Lerp(enemyRb.velocity, Vector3.zero, 0.1f);
+        }
     }
+
+    IEnumerator ChargeTowardsPlayer()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(chargeCooldown);
+
+
+            isCharging = true;
+
+            // Charge towards player
+            float chargeDuration = 0.2f; // Adjust as needed
+            float timer = 0f;
+            Vector3 direction = (playerPosition.position - transform.position).normalized;
+            direction.y = 0f;
+            while (timer < chargeDuration)
+            {
+                // Update direction towards player continuously
+
+                enemyRb.velocity = direction * enemySpeed;
+                timer += Time.deltaTime;
+                yield return null;
+            }
+
+            if (Vector3.Distance(transform.position, playerPosition.position) >= maxChargeDistance)
+            {
+                isCharging = false;
+            }
+
+                
+
+        }
+    }
+
 }
