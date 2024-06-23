@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using UnityEngine.SceneManagement;
 
 public class Player_Movement : MonoBehaviour
 {
@@ -12,13 +14,17 @@ public class Player_Movement : MonoBehaviour
     [SerializeField] private bool canDash = true;
     [SerializeField] private bool isDashing = false; // Por alguna razón, Unity me advierte que nunca se usa esta variable.
     [SerializeField] private float dashingSpeed;
+    [SerializeField] private TrailRenderer PlayerTr;
     private float dashingTime = 0.2f;
     private float dashingCooldown = 1f;
+
+    [SerializeField] TextMeshProUGUI gameOverText;
 
 
     // Start is called before the first frame update
     void Start()
     {
+       gameOverText.enabled = false;
        playerRb = GetComponent<Rigidbody>();
         dashingSpeed = movementSpeed * 2;
     }
@@ -28,20 +34,12 @@ public class Player_Movement : MonoBehaviour
     {
         MovementInput();
 
-        //float moveX = Input.GetAxisRaw("Horizontal");
-        //float moveZ = Input.GetAxisRaw("Vertical");
-        //direction = new Vector3(moveX, 0, moveZ).normalized;
-
-        /*Si uso GetAxis en vez de GetAxisRaw, el suavizado hará que al dejar de pulsar el botón
-         el objeto tarde un segundo en frenar. 
-         Pensando en el uso de sticks analógicos, ¿cómo puede diseñarse un movimiento gradual,
-         pero que se detenga instantáneamente al soltar el control?*/
-
-
         if (Input.GetKeyDown(KeyCode.Space) && canDash)
         {
             StartCoroutine(Dash());
         }
+
+        Restart();
     }
 
     private void FixedUpdate()
@@ -58,9 +56,16 @@ public class Player_Movement : MonoBehaviour
         if (isDashing)
         {
             return;
-        }//Evita que el jugador cambie de dirección durante el dash. 
+        }
+        //Evita que el jugador cambie de dirección durante el dash. 
+        
         
         direction = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical")).normalized;
+
+        /*Si uso GetAxis en vez de GetAxisRaw, el suavizado hará que al dejar de pulsar el botón
+         el objeto tarde un segundo en frenar. 
+         Pensando en el uso de sticks analógicos, ¿cómo puede diseñarse un movimiento gradual,
+         pero que se detenga instantáneamente al soltar el control?*/
 
     }
 
@@ -71,7 +76,9 @@ public class Player_Movement : MonoBehaviour
         canDash = false;
         float originalSpeed = movementSpeed;
         movementSpeed = dashingSpeed;
+        PlayerTr.emitting = true;
         yield return new WaitForSeconds(dashingTime);
+        PlayerTr.emitting = false;
         movementSpeed = originalSpeed;
         isDashing = false;
         yield return new WaitForSeconds(dashingCooldown);
@@ -79,8 +86,27 @@ public class Player_Movement : MonoBehaviour
 
         /*¿Cómo puedo programar el dash de otra forma que no sea guardando la velocidad original en un auxiliar?
          Estuve probando alternativas con playerRb.velocity, o alterando el playerRb.MovePosition y presentaban
-        distintos inconvenientes. Me cuesta mucho entender cómo se manejan los distintas formas de mover a los
+        distintos inconvenientes. A veces me cuesta entender cómo se manejan los distintas formas de mover a los
         objetos en el espacio.*/
 
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            Time.timeScale = 0f;
+            gameOverText.enabled = true;
+            gameOverText.text = "Game Over. Press R to restart.";
+        }
+    }
+
+    private void Restart()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            Time.timeScale = 1f;
+        }
     }
 }

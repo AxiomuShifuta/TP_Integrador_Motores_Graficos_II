@@ -12,7 +12,7 @@ public class Enemy_movement : MonoBehaviour
     [SerializeField] float enemyChargeSpeed;
     [SerializeField] float chargeCooldown = 3f;
     private float maxChargeDistance = 3f;
-    private float minFollowDistance = 15f;
+    private float minFollowDistance = 9f;
 
     
 
@@ -35,10 +35,7 @@ public class Enemy_movement : MonoBehaviour
 
     private void FixedUpdate()
     {
-         //if (!isCharging && enemyRb.velocity.magnitude > 0)
-         //   {
-         //       enemyRb.velocity = Vector3.Lerp(enemyRb.velocity, Vector3.zero, 0.1f);
-         //   }
+      
     }
 
     IEnumerator EnemyAI()
@@ -51,9 +48,10 @@ public class Enemy_movement : MonoBehaviour
                 yield return StartCoroutine(FollowPlayer());
             }
 
-            // Si está dentro del rango de embestida, carga hacia el jugador
+            // Si está dentro del rango de embestida, frena a cero, espera y  carga hacia el jugador
             if (!isCharging && Vector3.Distance(transform.position, playerPosition.position) <= minFollowDistance)
             {
+                enemyRb.velocity = Vector3.zero;
                 yield return StartCoroutine(WaitBeforeCharge());
                 yield return StartCoroutine(ChargeTowardsPlayer());
             }
@@ -84,7 +82,7 @@ public class Enemy_movement : MonoBehaviour
            
             isCharging = true;
 
-            float chargeDuration = 0.2f; 
+            float chargeDuration = 0.4f; 
             float timer = 0f;
             Vector3 direction = (playerPosition.position - transform.position).normalized;
             direction.y = 0f;
@@ -99,9 +97,16 @@ public class Enemy_movement : MonoBehaviour
                 yield return null;
             }
 
-        while (enemyRb.velocity.magnitude != 0 && Vector3.Distance(transform.position, playerPosition.position) > maxChargeDistance)
+        while (enemyRb.velocity.magnitude >= 1 && Vector3.Distance(transform.position, playerPosition.position) > maxChargeDistance)
         {
-            // Frena gradualmente el movimiento del enemigo
+            /* Frena gradualmente el movimiento del enemigo. En un principio había establecido como primer
+             condición del while que la magnitud de la velocidad sea mayor a cero, pero parece que por
+            cuestiones del motor de físicas, a pesar de que el objeto parecía completamente detenido, 
+            en el inspector se podían ver variaciones muy pequeñas en la posición, por lo que la condición
+            seguía cumpliendose y nunca salía del while.
+            Al configurar que el frenado actúe hasta que sea menor que 1 en magnitud, el movimiento residual es 
+            imperceptible y logra seguir ejecutando el código posterior.*/
+
             enemyRb.velocity = Vector3.Lerp(enemyRb.velocity, Vector3.zero, 0.1f);
             yield return null;
         }
@@ -111,17 +116,6 @@ public class Enemy_movement : MonoBehaviour
         enemyRb.velocity = Vector3.zero; // Detener completamente el movimiento
         yield return new WaitForSeconds(chargeCooldown);
 
-
-        /*Una vez que se cumple el tiempo de duración programado para la embestida, se evalúa
-         la distancia entre enemigo y jugador. Si supera el valor de distancia máxima, se desactiva
-        la bandera isCharging para dar paso a la instrucción de frenado con Lerp dentro del método
-        FixedUpdate.
-        Si no estuviese el cambio de bandera, podría ocurrir que el enemigo hiciese embestidas extremadamente
-        cortas si se encuentra muy lejos del jugador la próxima vez que se ejecute la corrutina.
-        Si bien la bandera no evita que el enemigo se quede corto con la embestida en caso de que haya
-        mucha distancia de por medio en cuanto reinice el ciclo de la corrutina, la manera en la que están 
-        organizadas las instrucciones asegura que la acción se cumpla durante el tiempo configurado 
-        en la variable chargeDuration y recién luego evalúe la distancia.*/
 
     }
 
