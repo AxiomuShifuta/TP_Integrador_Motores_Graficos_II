@@ -6,7 +6,7 @@ public class Enemy_movement : MonoBehaviour
 {
     private Rigidbody enemyRb;
     [SerializeField] Transform playerPosition;
-    private Vector3 direction;
+    public Vector3 direction;
     
     [SerializeField] float enemyNormalSpeed;
     [SerializeField] float enemyChargeSpeed;
@@ -15,8 +15,7 @@ public class Enemy_movement : MonoBehaviour
     private float minFollowDistance = 9f;
 
     
-
-    [SerializeField] private bool isCharging = false;
+    public bool isCharging = false;
 
     // Start is called before the first frame update
     void Start()

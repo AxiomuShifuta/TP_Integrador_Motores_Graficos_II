@@ -43,12 +43,8 @@ public class Player_Movement : MonoBehaviour
     }
 
     private void FixedUpdate()
-    {
-      
-            playerRb.MovePosition(playerRb.position + direction * movementSpeed * Time.fixedDeltaTime);
-        
-        /*la descripción de MovePosition dice que trabaja con el RigidBody Kinematic. Sin embargo, el
-         objeto player no tiene activada esa opción. ¿Puede traer algún problema a futuro?*/
+    {    
+            playerRb.velocity = direction * movementSpeed;        
     }
 
     private void MovementInput()
