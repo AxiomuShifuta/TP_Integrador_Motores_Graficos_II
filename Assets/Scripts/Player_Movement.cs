@@ -15,6 +15,7 @@ public class Player_Movement : MonoBehaviour
     [SerializeField] private bool isDashing = false; // Por alguna razón, Unity me advierte que nunca se usa esta variable.
     [SerializeField] private float dashingSpeed;
     [SerializeField] private TrailRenderer PlayerTr;
+    [SerializeField] private DashBar dashbar;
     private float dashingTime = 0.2f;
     private float dashingCooldown = 1f;
 
@@ -24,9 +25,10 @@ public class Player_Movement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+       dashbar.enabled = false;
        gameOverText.enabled = false;
        playerRb = GetComponent<Rigidbody>();
-        dashingSpeed = movementSpeed * 2;
+       dashingSpeed = movementSpeed * 2;
     }
 
     // Update is called once per frame

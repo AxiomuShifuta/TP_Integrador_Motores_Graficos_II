@@ -5,7 +5,8 @@ using UnityEngine;
 public class Breakable_Wall : MonoBehaviour
 {
     public Enemy_movement enemy;
-    private float bounceForce = 200f; // Fuerza del rebote, puedes ajustar este valor según sea necesario
+    private float bounceForce = 100f; // Fuerza del rebote.
+    private int breakCount = 2;
 
 
 
@@ -15,10 +16,12 @@ public class Breakable_Wall : MonoBehaviour
         {
             if (enemy.isCharging)
             {
+                
                 Rigidbody enemyRigidbody = enemy.GetComponent<Rigidbody>();
                 if (enemyRigidbody != null)
                 {
-                    // Calculamos la dirección del rebote
+                    enemyRigidbody.velocity = Vector3.zero;
+                    // Calcula dirección del rebote
                     Vector3 collisionPoint = collision.contacts[0].point;
                     Debug.Log("Collision point: " + collisionPoint);
                     Vector3 enemyPosition = enemy.transform.position;
@@ -27,11 +30,12 @@ public class Breakable_Wall : MonoBehaviour
                     bounceDirection.y = 0f;
                     Debug.Log("Bounce direction: " + bounceDirection);
 
-                    // Aplicamos la fuerza de rebote
+                    // Aplica la fuerza de rebote
                     enemyRigidbody.AddForce(bounceDirection * bounceForce, ForceMode.Impulse);
+                    breakCount--;
                 }
 
-                // Destruimos el muro
+                if(breakCount <= 0)
                 Destroy(this.gameObject);
             }
         }

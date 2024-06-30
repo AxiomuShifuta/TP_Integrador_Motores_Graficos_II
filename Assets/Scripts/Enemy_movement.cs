@@ -73,7 +73,7 @@ public class Enemy_movement : MonoBehaviour
     IEnumerator WaitBeforeCharge()
     {
         // Espera un breve momento antes de iniciar la embestida
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(1f);
     }
 
     IEnumerator ChargeTowardsPlayer()
@@ -81,10 +81,12 @@ public class Enemy_movement : MonoBehaviour
            
             isCharging = true;
 
-            float chargeDuration = 0.4f; 
-            float timer = 0f;
             Vector3 direction = (playerPosition.position - transform.position).normalized;
             direction.y = 0f;
+            float chargeDuration = 0.3f; 
+            float timer = 0f;
+            
+        yield return new WaitForSeconds(1f);
             /*Apunta hacia la última posición del jugador y luego embiste hacia allí.
              Si esa instrucción estuviese dentro del while, actualizaría su dirección
             durante la embestida y sería demasiado teledirigido.*/
