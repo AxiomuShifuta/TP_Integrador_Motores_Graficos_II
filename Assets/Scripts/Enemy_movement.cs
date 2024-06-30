@@ -17,6 +17,10 @@ public class Enemy_movement : MonoBehaviour
 
     
     public bool isCharging = false;
+    public bool hitBWall = false;
+
+    public delegate void DelImpact();
+    public event DelImpact onDelImpact;
 
     // Start is called before the first frame update
     void Start()
@@ -80,7 +84,7 @@ public class Enemy_movement : MonoBehaviour
              Si esa instrucción estuviese dentro del while, actualizaría su dirección
             durante la embestida y sería demasiado teledirigido.*/
 
-            while (timer < chargeDuration)
+            while (timer < chargeDuration && hitBWall == false)
             {
                 enemyRb.velocity = direction * enemyChargeSpeed;
                 timer += Time.deltaTime;
@@ -112,19 +116,32 @@ public class Enemy_movement : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (collision.gameObject.CompareTag("UnbreakableWall"))
+        {
+            StartCoroutine(Ricochet(enemyRb.velocity));
+        }
+
+
         if (collision.gameObject.CompareTag("BreakableWall"))
         {
-            StartCoroutine(Ricochet());
+            hitBWall = true;
+            Vector3 impactVelocity = enemyRb.velocity;
+            enemyRb.velocity = Vector3.zero;
+            StartCoroutine(Ricochet(impactVelocity));
+            onDelImpact();
+            hitBWall= false;
         }
     }
 
-    private IEnumerator Ricochet()
+    private IEnumerator Ricochet(Vector3 impactVelocity)
     {
+        
         float timer = 0f;
+        impactVelocity.y = 0f;
 
-        while (timer < 0.5f)
+        while (timer < 0.3f)
         {
-            enemyRb.velocity = ((-direction) * 100);
+            enemyRb.velocity = ((-impactVelocity.normalized) * 50);
             timer += Time.deltaTime;
             yield return null;
         }
