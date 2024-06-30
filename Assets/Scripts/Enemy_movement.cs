@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class Enemy_movement : MonoBehaviour
@@ -25,18 +26,6 @@ public class Enemy_movement : MonoBehaviour
         StartCoroutine(EnemyAI());
     }
     
-    // Update is called once per frame
-    void Update()
-    {
-        
-
-    }
-
-    private void FixedUpdate()
-    {
-      
-    }
-
     IEnumerator EnemyAI()
     {
         while (true)
@@ -120,4 +109,24 @@ public class Enemy_movement : MonoBehaviour
 
     }
 
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("BreakableWall"))
+        {
+            StartCoroutine(Ricochet());
+        }
+    }
+
+    private IEnumerator Ricochet()
+    {
+        float timer = 0f;
+
+        while (timer < 0.5f)
+        {
+            enemyRb.velocity = ((-direction) * 100);
+            timer += Time.deltaTime;
+            yield return null;
+        }
+    }
 }

@@ -15,17 +15,18 @@ public class Player_Movement : MonoBehaviour
     [SerializeField] private bool isDashing = false; // Por alguna razón, Unity me advierte que nunca se usa esta variable.
     [SerializeField] private float dashingSpeed;
     [SerializeField] private TrailRenderer PlayerTr;
-    [SerializeField] private DashBar dashbar;
+    [SerializeField] private DashBar dashbarScript;
     private float dashingTime = 0.2f;
     private float dashingCooldown = 1f;
 
     [SerializeField] TextMeshProUGUI gameOverText;
+    [SerializeField] Canvas dashBarCanvas;
 
 
     // Start is called before the first frame update
     void Start()
     {
-       dashbar.enabled = false;
+       dashBarCanvas.enabled = false;
        gameOverText.enabled = false;
        playerRb = GetComponent<Rigidbody>();
        dashingSpeed = movementSpeed * 2;
@@ -39,8 +40,12 @@ public class Player_Movement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && canDash)
         {
             StartCoroutine(Dash());
-        }
 
+            StartCoroutine(dashbarScript.FillDashBar(dashingCooldown));
+
+        }          
+
+        ShowDashBar();
         Restart();
     }
 
@@ -105,6 +110,18 @@ public class Player_Movement : MonoBehaviour
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             Time.timeScale = 1f;
+        }
+    }
+
+    private void ShowDashBar()
+    {
+        if (canDash)
+        {
+            dashBarCanvas.enabled = false;
+        }
+        else
+        {
+            dashBarCanvas.enabled = true;
         }
     }
 }
